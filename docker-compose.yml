@@ -1,0 +1,7 @@
+services:
+  site:
+    build: .
+    container_name: cloudaura-finetune-site
+    ports:
+      - "127.0.0.1:8004:80"
+    restart: unless-stopped
