@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-03-12T00:00:00+00:00",
+  "note": "Placeholder metrics — replace with real results from Colab notebook",
+  "config": {
+    "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "task": "json_extraction",
+    "sft_dataset": "HuggingFaceH4/ultrachat_200k",
+    "dpo_dataset": "argilla/distilabel-intel-orca-dpo-pairs",
+    "sft_max_train": 10000,
+    "dpo_max_train": 5000,
+    "lora_r": 16,
+    "lora_alpha": 32
+  },
+  "hardware": {
+    "gpu": "NVIDIA T4",
+    "vram_gb": 15.0
+  },
+  "training": {
+    "sft": {
+      "train_loss": 1.42,
+      "eval_loss": 1.58,
+      "train_samples": 10000,
+      "epochs": 3,
+      "lora_rank": 16,
+      "trainable_params_pct": 0.63
+    },
+    "dpo": {
+      "train_loss": 0.61,
+      "eval_loss": 0.65,
+      "train_samples": 5000,
+      "epochs": 1,
+      "beta": 0.1
+    }
+  },
+  "evaluation": {
+    "base": {
+      "model": "Base Model",
+      "valid_json_rate": 0.625,
+      "avg_key_f1": 0.541,
+      "avg_value_accuracy": 0.328,
+      "avg_latency_s": 2.14,
+      "tokens_per_second": 38.2
+    },
+    "sft": {
+      "model": "SFT (QLoRA)",
+      "valid_json_rate": 0.875,
+      "avg_key_f1": 0.782,
+      "avg_value_accuracy": 0.594,
+      "avg_latency_s": 2.08,
+      "tokens_per_second": 39.1
+    },
+    "dpo": {
+      "model": "SFT + DPO",
+      "valid_json_rate": 1.0,
+      "avg_key_f1": 0.856,
+      "avg_value_accuracy": 0.703,
+      "avg_latency_s": 2.11,
+      "tokens_per_second": 38.7
+    }
+  }
+}

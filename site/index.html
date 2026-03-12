@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudAura Fine-Tuning — LoRA + DPO Pipeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <a href="/" class="logo">CloudAura <span>Fine-Tune</span></a>
+        <nav>
+            <a href="#pipeline">Pipeline</a>
+            <a href="#results">Results</a>
+            <a href="#datasets">Datasets</a>
+            <a href="#tradeoffs">Tradeoffs</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1>Fine-Tuning with LoRA &amp; DPO</h1>
+        <p>Fine-tune Qwen2.5-1.5B for JSON extraction using QLoRA (4-bit) supervised fine-tuning, then align with Direct Preference Optimization. Before-and-after metrics on identical evaluation prompts.</p>
+        <div class="tags">
+            <span class="tag">Qwen2.5-1.5B-Instruct</span>
+            <span class="tag">QLoRA (4-bit NF4)</span>
+            <span class="tag">LoRA r=16</span>
+            <span class="tag">DPO beta=0.1</span>
+            <span class="tag">JSON Extraction</span>
+            <span class="tag">T4 GPU</span>
+        </div>
+        <p id="metrics-timestamp" style="margin-top: 1.5rem; font-size: 0.8rem;"></p>
+        <p id="metrics-status" style="margin-top: 1rem; color: var(--warning); font-size: 0.9rem;"></p>
+    </div>
+</section>
+
+<!-- Key Improvements -->
+<section>
+    <div class="container">
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-label">JSON Valid Rate Gain</div>
+                <div class="metric-value" style="color: var(--success);" id="json-improvement">--</div>
+                <div class="metric-sub">Base to SFT+DPO</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Key F1 Improvement</div>
+                <div class="metric-value" style="color: var(--sft-color);" id="f1-improvement">--</div>
+                <div class="metric-sub">Extraction accuracy</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Value Accuracy Gain</div>
+                <div class="metric-value" style="color: var(--dpo-color);" id="val-improvement">--</div>
+                <div class="metric-sub">Correct field values</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Trainable Parameters</div>
+                <div class="metric-value" style="color: var(--warning);" id="trainable-pct">--</div>
+                <div class="metric-sub">Of total model params</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pipeline -->
+<section id="pipeline">
+    <div class="container">
+        <h2 class="section-title">Training Pipeline</h2>
+        <p class="section-subtitle">Four-stage pipeline from base model to preference-aligned fine-tune.</p>
+
+        <div class="pipeline">
+            <div class="pipeline-step">
+                <div class="step-num">Step 1</div>
+                <h3>Data Preparation</h3>
+                <p>Load ultrachat_200k, format as JSON extraction instructions. Prepare DPO preference pairs.</p>
+            </div>
+            <div class="pipeline-step">
+                <div class="step-num">Step 2</div>
+                <h3>SFT with QLoRA</h3>
+                <p>4-bit quantized base model + LoRA adapters. 3 epochs on 10K samples. Paged AdamW 8-bit optimizer.</p>
+            </div>
+            <div class="pipeline-step">
+                <div class="step-num">Step 3</div>
+                <h3>DPO Alignment</h3>
+                <p>Merge SFT adapter, apply fresh LoRA. Train on 5K preference pairs with beta=0.1 sigmoid loss.</p>
+            </div>
+            <div class="pipeline-step">
+                <div class="step-num">Step 4</div>
+                <h3>Evaluation</h3>
+                <p>8 JSON extraction prompts. Measure valid JSON rate, key F1, value accuracy, latency across all variants.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 2rem; margin-bottom: 1rem;">QLoRA Configuration</h3>
+        <div class="config-block">Base Model:       Qwen/Qwen2.5-1.5B-Instruct (1.5B params)
+Quantization:     4-bit NF4 with double quantization
+LoRA Rank:        16 (alpha=32, dropout=0.05)
+Target Modules:   q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj
+SFT:              3 epochs, lr=2e-4, batch=4, grad_accum=4, cosine schedule
+DPO:              1 epoch, lr=5e-5, batch=2, grad_accum=8, beta=0.1
+Optimizer:        Paged AdamW 8-bit
+Hardware:         NVIDIA T4 (16GB VRAM)</div>
+    </div>
+</section>
+
+<!-- Results -->
+<section id="results" class="comparison-section">
+    <div class="container">
+        <h2 class="section-title">Before &amp; After Results</h2>
+        <p class="section-subtitle">Same 8 evaluation prompts, same hardware, three model variants.</p>
+
+        <div class="comparison-grid">
+            <div class="comparison-card" id="json-bars"></div>
+            <div class="comparison-card" id="f1-bars"></div>
+            <div class="comparison-card" id="val-bars"></div>
+            <div class="comparison-card" id="latency-bars"></div>
+        </div>
+
+        <!-- Detailed table -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 0.5rem;">Detailed Comparison</h3>
+            <div id="results-table"></div>
+        </div>
+
+        <!-- Training losses -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+                <h3 style="margin-bottom: 1rem; color: var(--sft-color);">SFT Training</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <div class="metric-label">Train Loss</div>
+                        <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;" id="sft-train-loss">--</div>
+                    </div>
+                    <div>
+                        <div class="metric-label">Eval Loss</div>
+                        <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;" id="sft-eval-loss">--</div>
+                    </div>
+                </div>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+                <h3 style="margin-bottom: 1rem; color: var(--dpo-color);">DPO Training</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <div class="metric-label">Train Loss</div>
+                        <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;" id="dpo-train-loss">--</div>
+                    </div>
+                    <div>
+                        <div class="metric-label">Eval Loss</div>
+                        <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;" id="dpo-eval-loss">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Datasets -->
+<section id="datasets">
+    <div class="container">
+        <h2 class="section-title">Datasets</h2>
+        <p class="section-subtitle">Curated, high-quality datasets for each training stage.</p>
+
+        <div class="dataset-grid">
+            <div class="dataset-card">
+                <span class="dataset-type sft">SFT</span>
+                <h3>ultrachat_200k</h3>
+                <p>High-quality multi-turn chat conversations filtered from ShareGPT-style logs. Widely used in open-source instruction model training. 10K samples used.</p>
+                <a href="https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k" target="_blank" rel="noopener">HuggingFaceH4/ultrachat_200k</a>
+            </div>
+            <div class="dataset-card">
+                <span class="dataset-type sft">SFT (Alt)</span>
+                <h3>Nemotron Instruction Following</h3>
+                <p>Large, commercially-usable instruction-following dataset from NVIDIA. Verifier-filtered conversations and structured-output examples.</p>
+                <a href="https://huggingface.co/datasets/nvidia/Nemotron-Instruction-Following-Chat-v1" target="_blank" rel="noopener">nvidia/Nemotron-Instruction-Following-Chat-v1</a>
+            </div>
+            <div class="dataset-card">
+                <span class="dataset-type dpo">DPO</span>
+                <h3>distilabel-intel-orca-dpo-pairs</h3>
+                <p>Curated preference dataset with prompt/chosen/rejected triples. Cleaned and enriched from Intel/orca_dpo_pairs for DPO alignment. 5K pairs used.</p>
+                <a href="https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs" target="_blank" rel="noopener">argilla/distilabel-intel-orca-dpo-pairs</a>
+            </div>
+            <div class="dataset-card">
+                <span class="dataset-type eval">Eval</span>
+                <h3>GSM8K</h3>
+                <p>8.5K grade-school math word problems for testing multi-step reasoning. Used as supplementary evaluation benchmark.</p>
+                <a href="https://huggingface.co/datasets/openai/gsm8k" target="_blank" rel="noopener">openai/gsm8k</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tradeoffs -->
+<section id="tradeoffs" style="background: var(--bg-secondary);">
+    <div class="container">
+        <h2 class="section-title">Why LoRA + DPO?</h2>
+        <p class="section-subtitle">Efficient fine-tuning for production constraints.</p>
+
+        <div class="tradeoff-grid">
+            <div class="tradeoff-card">
+                <h3>QLoRA Efficiency</h3>
+                <p>Full fine-tuning a 1.5B model requires ~12GB VRAM and updates all parameters. QLoRA <span class="highlight">quantizes to 4-bit</span> and trains only ~0.6% of parameters via low-rank adapters. Result: <span class="highlight">fits on a free T4 GPU</span> with minimal quality loss versus full fine-tuning.</p>
+            </div>
+            <div class="tradeoff-card">
+                <h3>SFT vs DPO</h3>
+                <p>SFT teaches the model <em>what</em> to output. DPO teaches it <em>which output is better</em>. SFT alone may produce valid JSON but with wrong field choices. DPO uses <span class="highlight">preference pairs</span> to steer the model toward outputs humans actually prefer — better key naming, more complete extraction.</p>
+            </div>
+            <div class="tradeoff-card">
+                <h3>Rank Selection</h3>
+                <p>LoRA rank (r) controls adapter capacity. r=4 is minimal, r=64 approaches full fine-tuning. We use <span class="highlight">r=16</span> as the sweet spot: enough capacity for task-specific adaptation without overfitting on 10K samples. Alpha=32 (2x rank) provides stable gradients.</p>
+            </div>
+            <div class="tradeoff-card">
+                <h3>Quantization Tradeoff</h3>
+                <p>NF4 quantization reduces model size by ~4x. The <span class="highlight">double quantization</span> flag further compresses quantization constants. Compute stays in bfloat16 for numerical stability. Measured quality loss vs full precision: &lt;1% on most benchmarks.</p>
+            </div>
+        </div>
+
+        <!-- Comparison table -->
+        <div style="margin-top: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">Fine-Tuning Approaches Compared</h3>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Approach</th>
+                        <th>VRAM Required</th>
+                        <th>Params Trained</th>
+                        <th>Quality</th>
+                        <th>Training Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full Fine-Tune</td>
+                        <td>~12 GB</td>
+                        <td>100%</td>
+                        <td style="color: var(--success);">Best</td>
+                        <td>Hours</td>
+                    </tr>
+                    <tr>
+                        <td>LoRA (16-bit)</td>
+                        <td>~8 GB</td>
+                        <td>~0.6%</td>
+                        <td style="color: var(--success);">Near-best</td>
+                        <td>~1 hour</td>
+                    </tr>
+                    <tr style="background: rgba(56,189,248,0.05);">
+                        <td><strong>QLoRA (4-bit)</strong></td>
+                        <td><strong>~4 GB</strong></td>
+                        <td><strong>~0.6%</strong></td>
+                        <td style="color: var(--sft-color);"><strong>Excellent</strong></td>
+                        <td><strong>~45 min</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Prompt Engineering</td>
+                        <td>0 GB</td>
+                        <td>0%</td>
+                        <td style="color: var(--warning);">Limited</td>
+                        <td>Minutes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Summary table with all three variants -->
+<section>
+    <div class="container">
+        <h2 class="section-title">Model Variant Summary</h2>
+        <p class="section-subtitle">Head-to-head comparison on 8 JSON extraction evaluation prompts.</p>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Variant</th>
+                    <th>Valid JSON</th>
+                    <th>Key F1</th>
+                    <th>Value Acc</th>
+                    <th>Latency</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Base (Qwen2.5-1.5B)</td>
+                    <td id="base-json">--</td>
+                    <td id="base-f1">--</td>
+                    <td id="base-val">--</td>
+                    <td id="base-lat">--</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--sft-color);">+ SFT (QLoRA)</td>
+                    <td id="sft-json">--</td>
+                    <td id="sft-f1">--</td>
+                    <td id="sft-val">--</td>
+                    <td id="sft-lat">--</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--dpo-color);">+ SFT + DPO</td>
+                    <td id="dpo-json">--</td>
+                    <td id="dpo-f1">--</td>
+                    <td id="dpo-val">--</td>
+                    <td id="dpo-lat">--</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>CloudAura Fine-Tune &mdash; LoRA/QLoRA + DPO Training Pipeline</p>
+        <p style="margin-top: 0.5rem;">
+            Built with <a href="https://huggingface.co/docs/peft" target="_blank" rel="noopener">PEFT</a> &middot;
+            <a href="https://huggingface.co/docs/trl" target="_blank" rel="noopener">TRL</a> &middot;
+            <a href="https://python.useinstructor.com" target="_blank" rel="noopener">Instructor</a> &middot;
+            <a href="https://huggingface.co/docs/transformers" target="_blank" rel="noopener">Transformers</a>
+        </p>
+    </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

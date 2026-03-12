@@ -1,0 +1,40 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.env
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Training artifacts
+outputs/
+checkpoints/
+wandb/
+*.safetensors
+*.bin
+*.pt
+*.gguf
+merged_model/
+adapter_model/
+
+# Data cache
+data_cache/
+.cache/
+datasets_cache/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
