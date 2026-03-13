@@ -1,118 +1,993 @@
+/* ==========================================================================
+   CloudAura Fine-Tune — Scientific Paper / Academic Poster Aesthetic
+   Light theme with serif headings, clean data presentation
+   ========================================================================== */
+
 :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-card: #1e293b;
-    --bg-card-hover: #334155;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --accent: #38bdf8;
-    --accent-hover: #7dd3fc;
-    --success: #4ade80;
-    --warning: #fbbf24;
-    --danger: #f87171;
-    --border: #334155;
-    --base-color: #64748b;
-    --sft-color: #a78bfa;
-    --dpo-color: #38bdf8;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-    --font-sans: 'Inter', -apple-system, sans-serif;
+    /* Colors — warm academic palette */
+    --bg-primary: #faf8f5;
+    --bg-secondary: #f3f0eb;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f7f5f2;
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a5a;
+    --text-muted: #7a7a8a;
+    --accent: #e63946;
+    --accent-light: rgba(230, 57, 70, 0.08);
+    --accent-hover: #c62f3b;
+    --success: #2d8a4e;
+    --warning: #b8860b;
+    --danger: #c0392b;
+    --border: #e0ddd8;
+    --border-light: #eae7e2;
+    --base-color: #7a7a8a;
+    --sft-color: #5b4a9e;
+    --dpo-color: #1a6b8a;
+
+    /* Typography */
+    --font-serif: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+    --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-sans); line-height: 1.6; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
 
-header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1.5rem 0; position: sticky; top: 0; z-index: 100; }
-header .container { display: flex; justify-content: space-between; align-items: center; }
-.logo { font-size: 1.5rem; font-weight: 700; color: var(--accent); text-decoration: none; font-family: var(--font-mono); }
-.logo span { color: var(--text-secondary); font-weight: 400; }
-nav { display: flex; gap: 1.5rem; }
-nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
-nav a:hover { color: var(--accent); }
+/* ==========================================================================
+   Reset & Base
+   ========================================================================== */
 
-.hero { padding: 4rem 0 3rem; text-align: center; border-bottom: 1px solid var(--border); }
-.hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, var(--sft-color), var(--dpo-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hero p { color: var(--text-secondary); font-size: 1.125rem; max-width: 700px; margin: 0 auto; }
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-.tags { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
-.tag { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.8rem; color: var(--text-secondary); font-family: var(--font-mono); }
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-section { padding: 3rem 0; }
-.section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
-.section-subtitle { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem; }
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
 
-/* Pipeline steps */
-.pipeline { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-.pipeline-step { flex: 1; min-width: 200px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; position: relative; }
-.pipeline-step::after { content: ''; position: absolute; right: -0.75rem; top: 50%; width: 0.5rem; height: 0.5rem; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); transform: rotate(45deg) translateY(-50%); }
-.pipeline-step:last-child::after { display: none; }
-.step-num { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-.pipeline-step h3 { font-size: 0.95rem; margin-bottom: 0.3rem; }
-.pipeline-step p { font-size: 0.8rem; color: var(--text-muted); }
+/* ==========================================================================
+   Header — slim, understated navigation
+   ========================================================================== */
 
-/* Metric cards */
-.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
-.metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
-.metric-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
-.metric-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; }
-.metric-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: rgba(250, 248, 245, 0.92);
+}
 
-/* Comparison bars */
-.comparison-section { background: var(--bg-secondary); padding: 3rem 0; }
-.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
-.comparison-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
-.comparison-card h3 { font-size: 1rem; margin-bottom: 1.25rem; color: var(--text-secondary); }
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-.bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-.bar-label { width: 90px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); text-align: right; flex-shrink: 0; }
-.bar-track { flex: 1; height: 28px; background: var(--bg-primary); border-radius: 6px; position: relative; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 6px; transition: width 1s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.5rem; }
-.bar-fill.base { background: var(--base-color); }
-.bar-fill.sft { background: var(--sft-color); }
-.bar-fill.dpo { background: var(--dpo-color); }
-.bar-fill span { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; color: var(--bg-primary); white-space: nowrap; }
+.logo {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+}
+
+.logo span {
+    color: var(--accent);
+    font-weight: 400;
+    font-style: italic;
+}
+
+nav {
+    display: flex;
+    gap: 2rem;
+}
+
+nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.25s ease;
+    position: relative;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.25s ease;
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+/* ==========================================================================
+   Hero — title page of a research paper
+   ========================================================================== */
+
+.hero {
+    padding: 5rem 0 4rem;
+    text-align: center;
+    border-bottom: 2px solid var(--text-primary);
+}
+
+.hero-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+    font-family: var(--font-serif);
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.hero-rule {
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 0 auto 2rem;
+}
+
+.hero-abstract {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.hero-abstract strong {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--text-primary);
+}
+
+.hero-timestamp {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.hero-status {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--warning);
+}
+
+/* ==========================================================================
+   Tags — keyword badges
+   ========================================================================== */
+
+.tags {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   Section Structure — academic paper sections
+   ========================================================================== */
+
+section {
+    padding: 3.5rem 0;
+}
+
+.section-number {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+}
+
+.section-title {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   Metric Cards — key findings, top of page
+   ========================================================================== */
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem 1.25rem;
+    text-align: center;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.metric-card:hover {
+    box-shadow: 0 4px 20px rgba(26, 26, 46, 0.06);
+    transform: translateY(-2px);
+}
+
+.metric-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.metric-value {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.metric-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+/* Color utility classes for metric values */
+.accent-color { color: var(--accent); }
+.sft-color { color: var(--sft-color); }
+.dpo-color { color: var(--dpo-color); }
+.success-color { color: var(--success); }
+.warning-color { color: var(--warning); }
+
+/* ==========================================================================
+   Pipeline — research paper figure style
+   ========================================================================== */
+
+.pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.pipeline-step {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem 1.25rem;
+    position: relative;
+    transition: box-shadow 0.3s ease;
+}
+
+.pipeline-step:hover {
+    box-shadow: 0 2px 12px rgba(26, 26, 46, 0.06);
+}
+
+.pipeline-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.pipeline-arrow::after {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--text-muted);
+    position: relative;
+}
+
+.pipeline-arrow::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--text-muted);
+    border-right: 1px solid var(--text-muted);
+    transform: rotate(45deg);
+    position: absolute;
+    right: 0.5rem;
+}
+
+.step-num {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+}
+
+.pipeline-step h3 {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.pipeline-step p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   Config Block — monospace technical specification
+   ========================================================================== */
+
+.config-section {
+    margin-top: 2.5rem;
+}
+
+.config-title {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.config-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    padding: 1.5rem 1.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text-secondary);
+    line-height: 1.9;
+}
+
+.config-key {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Results Section
+   ========================================================================== */
+
+.results-section {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.comparison-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.comparison-card:hover {
+    box-shadow: 0 2px 12px rgba(26, 26, 46, 0.06);
+}
+
+.comparison-card h3 {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Bar chart rows */
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.875rem;
+}
+
+.bar-label {
+    width: 70px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-align: right;
+    flex-shrink: 0;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--bg-secondary);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.5rem;
+    transition: width 0s;
+}
+
+.bar-fill.animated {
+    transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.bar-fill.base {
+    background: var(--base-color);
+}
+
+.bar-fill.sft {
+    background: var(--sft-color);
+}
+
+.bar-fill.dpo {
+    background: var(--dpo-color);
+}
+
+.bar-fill span {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* ==========================================================================
+   Detail Panels (tables, losses)
+   ========================================================================== */
+
+.detail-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+    margin-top: 1.5rem;
+}
+
+.panel-title {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Training losses */
+.training-losses {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.loss-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+.loss-title {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.loss-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.loss-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Results Table — clean academic table
+   ========================================================================== */
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+}
+
+.results-table thead th {
+    text-align: left;
+    padding: 0.625rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--text-primary);
+    background: transparent;
+}
+
+.results-table tbody td {
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.results-table tbody tr:last-child td {
+    border-bottom: 2px solid var(--text-primary);
+}
+
+.results-table tbody tr:hover td {
+    background: var(--accent-light);
+}
+
+.highlight-row td {
+    background: var(--accent-light);
+}
 
 /* Improvement badges */
-.improvement { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--font-mono); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; }
-.improvement.positive { background: rgba(74,222,128,0.15); color: var(--success); }
-.improvement.neutral { background: rgba(148,163,184,0.15); color: var(--text-secondary); }
+.improvement {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    font-weight: 600;
+}
 
-/* Results table */
-.results-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1rem; }
-.results-table th { text-align: left; padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--border); background: var(--bg-secondary); }
-.results-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 0.8rem; }
-.results-table tr:hover td { background: var(--bg-card-hover); }
+.improvement.positive {
+    background: rgba(45, 138, 78, 0.1);
+    color: var(--success);
+}
 
-/* Dataset cards */
-.dataset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
-.dataset-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
-.dataset-card h3 { font-size: 1rem; margin-bottom: 0.5rem; font-family: var(--font-mono); }
-.dataset-card .dataset-type { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; font-weight: 600; text-transform: uppercase; display: inline-block; margin-bottom: 0.75rem; }
-.dataset-type.sft { background: rgba(167,139,250,0.15); color: var(--sft-color); }
-.dataset-type.dpo { background: rgba(56,189,248,0.15); color: var(--dpo-color); }
-.dataset-type.eval { background: rgba(74,222,128,0.15); color: var(--success); }
-.dataset-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
-.dataset-card a { color: var(--accent); text-decoration: none; font-size: 0.8rem; }
-.dataset-card a:hover { text-decoration: underline; }
+.improvement.neutral {
+    background: rgba(122, 122, 138, 0.1);
+    color: var(--text-secondary);
+}
 
-/* Tradeoff cards */
-.tradeoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
-.tradeoff-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
-.tradeoff-card h3 { font-size: 1.05rem; margin-bottom: 0.75rem; }
-.tradeoff-card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; }
-.highlight { color: var(--accent); font-weight: 600; }
+/* ==========================================================================
+   Dataset Cards
+   ========================================================================== */
 
-/* Config block */
-.config-block { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; font-family: var(--font-mono); font-size: 0.8rem; overflow-x: auto; white-space: pre; color: var(--text-secondary); line-height: 1.7; }
+.dataset-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
 
-footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--text-muted); font-size: 0.8rem; }
-footer a { color: var(--accent); text-decoration: none; }
-footer a:hover { text-decoration: underline; }
+.dataset-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
 
-@media (max-width: 640px) {
-    .hero h1 { font-size: 1.75rem; }
-    .pipeline { flex-direction: column; }
-    .pipeline-step::after { display: none; }
-    header .container { flex-direction: column; gap: 1rem; }
+.dataset-card:hover {
+    box-shadow: 0 2px 12px rgba(26, 26, 46, 0.06);
+}
+
+.dataset-card h3 {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.dataset-card .dataset-type {
+    font-size: 0.625rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+}
+
+.dataset-type.sft {
+    background: rgba(91, 74, 158, 0.1);
+    color: var(--sft-color);
+}
+
+.dataset-type.dpo {
+    background: rgba(26, 107, 138, 0.1);
+    color: var(--dpo-color);
+}
+
+.dataset-type.eval {
+    background: rgba(45, 138, 78, 0.1);
+    color: var(--success);
+}
+
+.dataset-card p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+
+.dataset-card a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.dataset-card a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Discussion / Tradeoffs
+   ========================================================================== */
+
+.discussion-section {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+}
+
+.tradeoff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.tradeoff-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.tradeoff-card:hover {
+    box-shadow: 0 2px 12px rgba(26, 26, 46, 0.06);
+}
+
+.tradeoff-card h3 {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.tradeoff-card p {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+}
+
+.highlight {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Footer — minimal, like a paper's final line
+   ========================================================================== */
+
+footer {
+    padding: 3rem 0 2.5rem;
+    text-align: center;
+}
+
+.footer-rule {
+    width: 40px;
+    height: 1px;
+    background: var(--text-muted);
+    margin: 0 auto 1.5rem;
+}
+
+.footer-title {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.footer-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.footer-links {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.footer-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Animations — fade-in on scroll
+   ========================================================================== */
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger animation delay for grid children */
+.metric-grid .fade-in:nth-child(1) { transition-delay: 0s; }
+.metric-grid .fade-in:nth-child(2) { transition-delay: 0.1s; }
+.metric-grid .fade-in:nth-child(3) { transition-delay: 0.2s; }
+.metric-grid .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+.pipeline .fade-in:nth-child(1) { transition-delay: 0s; }
+.pipeline .fade-in:nth-child(3) { transition-delay: 0.15s; }
+.pipeline .fade-in:nth-child(5) { transition-delay: 0.3s; }
+.pipeline .fade-in:nth-child(7) { transition-delay: 0.45s; }
+
+.comparison-grid .fade-in:nth-child(1) { transition-delay: 0s; }
+.comparison-grid .fade-in:nth-child(2) { transition-delay: 0.1s; }
+.comparison-grid .fade-in:nth-child(3) { transition-delay: 0.2s; }
+.comparison-grid .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+.dataset-grid .fade-in:nth-child(1) { transition-delay: 0s; }
+.dataset-grid .fade-in:nth-child(2) { transition-delay: 0.1s; }
+.dataset-grid .fade-in:nth-child(3) { transition-delay: 0.2s; }
+.dataset-grid .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+.tradeoff-grid .fade-in:nth-child(1) { transition-delay: 0s; }
+.tradeoff-grid .fade-in:nth-child(2) { transition-delay: 0.1s; }
+.tradeoff-grid .fade-in:nth-child(3) { transition-delay: 0.2s; }
+.tradeoff-grid .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+/* Bar fill animation — start at 0 width, animate to target */
+@keyframes barGrow {
+    from { width: 0; }
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .metric-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .training-losses {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1.25rem;
+    }
+
+    .hero {
+        padding: 3rem 0 2.5rem;
+    }
+
+    .hero h1 {
+        font-size: 1.875rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.0625rem;
+    }
+
+    .hero-abstract {
+        text-align: left;
+        font-size: 0.875rem;
+    }
+
+    .pipeline {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .pipeline-arrow {
+        transform: rotate(90deg);
+        padding: 0.25rem 0;
+        justify-content: center;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .dataset-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tradeoff-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .results-table {
+        font-size: 0.75rem;
+    }
+
+    .results-table thead th,
+    .results-table tbody td {
+        padding: 0.5rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .metric-grid {
+        grid-template-columns: 1fr;
+    }
+
+    header .container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    nav {
+        gap: 1rem;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* ==========================================================================
+   Print styles — readable when printed
+   ========================================================================== */
+
+@media print {
+    header {
+        position: static;
+    }
+
+    .fade-in {
+        opacity: 1;
+        transform: none;
+    }
+
+    body {
+        font-size: 11pt;
+    }
+
+    .container {
+        max-width: 100%;
+    }
 }
