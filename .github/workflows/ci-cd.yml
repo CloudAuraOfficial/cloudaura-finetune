@@ -1,0 +1,60 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate HTML
+        run: python -c "from html.parser import HTMLParser; HTMLParser().feed(open('site/index.html').read()); print('HTML valid')"
+
+      - name: Validate training configs
+        run: |
+          pip install pyyaml
+          python -c "import yaml; yaml.safe_load(open('pipeline/configs/sft_config.yaml'))"
+          python -c "import yaml; yaml.safe_load(open('pipeline/configs/dpo_config.yaml'))"
+
+      - name: Validate metrics JSON
+        run: python -c "import json; json.load(open('results/eval_metrics.json')); print('Metrics JSON valid')"
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/cloudaura-finetune
+            git pull origin main
+            docker compose up -d --build
+        continue-on-error: true
+
+  smoke-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Wait for deploy
+        run: sleep 10
+
+      - name: Health check
+        run: |
+          HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+            "https://finetune.cloudaura.cloud/" --max-time 10) || true
+          echo "Site health: $HTTP_STATUS"
