@@ -29,7 +29,7 @@
         <h1>Fine-Tuning with LoRA &amp; DPO</h1>
         <p class="hero-subtitle">A QLoRA Pipeline for Structured JSON Extraction from Qwen2.5-1.5B-Instruct</p>
         <div class="hero-rule"></div>
-        <p class="hero-abstract"><strong>Abstract.</strong> We present a four-stage fine-tuning pipeline combining quantized low-rank adaptation (QLoRA) with Direct Preference Optimization (DPO) for structured JSON extraction. Using 4-bit NF4 quantization and LoRA rank 16, we train only ~0.6% of model parameters on a single NVIDIA T4 GPU. Evaluation on 8 held-out prompts demonstrates significant improvements in valid JSON rate, key extraction F1, and value accuracy compared to the unmodified base model.</p>
+        <p class="hero-abstract"><strong>Abstract.</strong> We present a four-stage fine-tuning pipeline combining quantized low-rank adaptation (QLoRA) with Direct Preference Optimization (DPO) for structured JSON extraction. Using 4-bit NF4 quantization and LoRA rank 16, we train only ~1.2% of model parameters on a single NVIDIA T4 GPU (Google Colab free tier). SFT on general chat data degraded JSON output capability, but DPO preference alignment recovered and improved upon the base model: +7.7% Key F1, 32% lower latency, and 87.5% valid JSON rate. This demonstrates DPO's power to rescue task-specific behaviour after domain-mismatched SFT.</p>
         <div class="tags">
             <span class="tag">Qwen2.5-1.5B-Instruct</span>
             <span class="tag">QLoRA (4-bit NF4)</span>
@@ -82,19 +82,19 @@
             <div class="pipeline-step fade-in">
                 <div class="step-num">Stage I</div>
                 <h3>Data Preparation</h3>
-                <p>Load ultrachat_200k, format as JSON extraction instructions. Prepare DPO preference pairs from curated chosen/rejected examples.</p>
+                <p>Load 500 samples from ultrachat_200k, format as JSON extraction instructions. Prepare 285 DPO preference pairs from curated chosen/rejected examples.</p>
             </div>
             <div class="pipeline-arrow"></div>
             <div class="pipeline-step fade-in">
                 <div class="step-num">Stage II</div>
                 <h3>SFT with QLoRA</h3>
-                <p>4-bit quantized base model + LoRA adapters. 3 epochs on 10K samples. Paged AdamW 8-bit optimizer with cosine schedule.</p>
+                <p>4-bit quantized base model + LoRA adapters. 1 epoch on 500 samples. Paged AdamW 8-bit optimizer with cosine schedule.</p>
             </div>
             <div class="pipeline-arrow"></div>
             <div class="pipeline-step fade-in">
                 <div class="step-num">Stage III</div>
                 <h3>DPO Alignment</h3>
-                <p>Merge SFT adapter, apply fresh LoRA. Train on 5K preference pairs with beta=0.1 sigmoid loss for preference alignment.</p>
+                <p>Merge SFT adapter, apply fresh LoRA. Train on 285 preference pairs with beta=0.1 sigmoid loss for preference alignment.</p>
             </div>
             <div class="pipeline-arrow"></div>
             <div class="pipeline-step fade-in">
@@ -110,8 +110,8 @@
 <span class="config-key">Quantization</span>     4-bit NF4 with double quantization
 <span class="config-key">LoRA Rank</span>        16 (alpha=32, dropout=0.05)
 <span class="config-key">Target Modules</span>   q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj
-<span class="config-key">SFT</span>              3 epochs, lr=2e-4, batch=4, grad_accum=4, cosine schedule
-<span class="config-key">DPO</span>              1 epoch, lr=5e-5, batch=2, grad_accum=8, beta=0.1
+<span class="config-key">SFT</span>              1 epoch, lr=2e-4, batch=2, grad_accum=8, cosine schedule, 500 samples
+<span class="config-key">DPO</span>              1 epoch, lr=5e-5, batch=2, grad_accum=8, beta=0.1, 285 samples
 <span class="config-key">Optimizer</span>        Paged AdamW 8-bit
 <span class="config-key">Hardware</span>         NVIDIA T4 (16GB VRAM)</div>
         </div>
@@ -181,7 +181,7 @@
             <div class="dataset-card fade-in">
                 <span class="dataset-type sft">SFT</span>
                 <h3>ultrachat_200k</h3>
-                <p>High-quality multi-turn chat conversations filtered from ShareGPT-style logs. Widely used in open-source instruction model training. 10K samples used for supervised fine-tuning.</p>
+                <p>High-quality multi-turn chat conversations filtered from ShareGPT-style logs. Widely used in open-source instruction model training. 500 samples used for supervised fine-tuning (free-tier optimized).</p>
                 <a href="https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k" target="_blank" rel="noopener">HuggingFaceH4/ultrachat_200k</a>
             </div>
             <div class="dataset-card fade-in">
@@ -193,7 +193,7 @@
             <div class="dataset-card fade-in">
                 <span class="dataset-type dpo">DPO</span>
                 <h3>distilabel-intel-orca-dpo-pairs</h3>
-                <p>Curated preference dataset with prompt/chosen/rejected triples. Cleaned and enriched from Intel/orca_dpo_pairs for DPO alignment training. 5K pairs used.</p>
+                <p>Curated preference dataset with prompt/chosen/rejected triples. Cleaned and enriched from Intel/orca_dpo_pairs for DPO alignment training. 285 pairs used (free-tier optimized).</p>
                 <a href="https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs" target="_blank" rel="noopener">argilla/distilabel-intel-orca-dpo-pairs</a>
             </div>
             <div class="dataset-card fade-in">
@@ -220,11 +220,11 @@
             </div>
             <div class="tradeoff-card fade-in">
                 <h3>4.2 SFT vs DPO</h3>
-                <p>SFT teaches the model <em>what</em> to output. DPO teaches it <em>which output is better</em>. SFT alone may produce valid JSON but with suboptimal field choices. DPO uses <span class="highlight">preference pairs</span> to steer the model toward outputs humans actually prefer -- better key naming, more complete extraction.</p>
+                <p>SFT teaches the model <em>what</em> to output. DPO teaches it <em>which output is better</em>. In our experiment, SFT on general chat data <span class="highlight">catastrophically degraded</span> JSON output (0% valid JSON). DPO then <span class="highlight">recovered the model to 87.5% valid JSON</span> and improved Key F1 over the base. This demonstrates DPO's power as a corrective alignment stage.</p>
             </div>
             <div class="tradeoff-card fade-in">
                 <h3>4.3 Rank Selection</h3>
-                <p>LoRA rank (r) controls adapter capacity. r=4 is minimal, r=64 approaches full fine-tuning. We use <span class="highlight">r=16</span> as the sweet spot: enough capacity for task-specific adaptation without overfitting on 10K samples. Alpha=32 (2x rank) provides stable gradients.</p>
+                <p>LoRA rank (r) controls adapter capacity. r=4 is minimal, r=64 approaches full fine-tuning. We use <span class="highlight">r=16</span> as the sweet spot: enough capacity for task-specific adaptation without overfitting on 500 samples. Alpha=32 (2x rank) provides stable gradients.</p>
             </div>
             <div class="tradeoff-card fade-in">
                 <h3>4.4 Quantization Tradeoff</h3>

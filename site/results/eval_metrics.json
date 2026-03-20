@@ -1,61 +1,548 @@
 {
-  "timestamp": "2026-03-12T00:00:00+00:00",
-  "note": "Placeholder metrics — replace with real results from Colab notebook",
+  "timestamp": "2026-03-20T05:06:44.306777+00:00",
   "config": {
     "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
     "task": "json_extraction",
     "sft_dataset": "HuggingFaceH4/ultrachat_200k",
+    "sft_train_split": "train_sft",
+    "sft_eval_split": "test_sft",
+    "sft_max_train": 500,
+    "sft_max_eval": 50,
+    "sft_epochs": 1,
+    "sft_batch_size": 2,
+    "sft_grad_accum": 8,
+    "sft_lr": 0.0002,
+    "sft_max_seq_len": 512,
     "dpo_dataset": "argilla/distilabel-intel-orca-dpo-pairs",
-    "sft_max_train": 10000,
-    "dpo_max_train": 5000,
+    "dpo_max_train": 300,
+    "dpo_epochs": 1,
+    "dpo_batch_size": 2,
+    "dpo_grad_accum": 8,
+    "dpo_lr": 5e-05,
+    "dpo_beta": 0.1,
     "lora_r": 16,
-    "lora_alpha": 32
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
   },
   "hardware": {
-    "gpu": "NVIDIA T4",
-    "vram_gb": 15.0
+    "gpu": "Tesla T4",
+    "vram_gb": 15.6
   },
   "training": {
     "sft": {
-      "train_loss": 1.42,
-      "eval_loss": 1.58,
-      "train_samples": 10000,
-      "epochs": 3,
+      "train_loss": 1.5455689877271652,
+      "eval_loss": 1.4481357336044312,
+      "train_samples": 500,
+      "epochs": 1,
       "lora_rank": 16,
-      "trainable_params_pct": 0.63
+      "trainable_params_pct": 1.18
     },
     "dpo": {
-      "train_loss": 0.61,
-      "eval_loss": 0.65,
-      "train_samples": 5000,
+      "train_loss": 0.5997409820556641,
+      "eval_loss": 0.6237255334854126,
+      "train_samples": 285,
       "epochs": 1,
       "beta": 0.1
     }
   },
   "evaluation": {
     "base": {
-      "model": "Base Model",
-      "valid_json_rate": 0.625,
-      "avg_key_f1": 0.541,
-      "avg_value_accuracy": 0.328,
-      "avg_latency_s": 2.14,
-      "tokens_per_second": 38.2
+      "model": "Base Model (Qwen2.5-1.5B-Instruct)",
+      "valid_json_rate": 1.0,
+      "avg_key_f1": 0.4042,
+      "avg_value_accuracy": 0.3277,
+      "avg_latency_s": 11.048,
+      "tokens_per_second": 5.4
     },
     "sft": {
       "model": "SFT (QLoRA)",
-      "valid_json_rate": 0.875,
-      "avg_key_f1": 0.782,
-      "avg_value_accuracy": 0.594,
-      "avg_latency_s": 2.08,
-      "tokens_per_second": 39.1
+      "valid_json_rate": 0.0,
+      "avg_key_f1": 0.0,
+      "avg_value_accuracy": 0.0,
+      "avg_latency_s": 35.669,
+      "tokens_per_second": 6.7
     },
     "dpo": {
       "model": "SFT + DPO",
-      "valid_json_rate": 1.0,
-      "avg_key_f1": 0.856,
-      "avg_value_accuracy": 0.703,
-      "avg_latency_s": 2.11,
-      "tokens_per_second": 38.7
+      "valid_json_rate": 0.875,
+      "avg_key_f1": 0.4354,
+      "avg_value_accuracy": 0.3277,
+      "avg_latency_s": 7.478,
+      "tokens_per_second": 7.2
     }
+  },
+  "detailed_results": {
+    "base": [
+      {
+        "id": "eval_001",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.25,
+          "key_recall": 0.25,
+          "key_f1": 0.25,
+          "value_accuracy": 0.0
+        },
+        "latency": 11.056,
+        "tokens": 34,
+        "raw_output": "{\n  \"action\": \"cancel subscription\",\n  \"userId\": 8842,\n  \"effectiveImmediately\": true,\n  \"confirmationEmail\": true\n}",
+        "parsed": {
+          "action": "cancel subscription",
+          "userId": 8842,
+          "effectiveImmediately": true,
+          "confirmationEmail": true
+        }
+      },
+      {
+        "id": "eval_002",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.0,
+          "key_recall": 0.0,
+          "key_f1": 0,
+          "value_accuracy": 0.0
+        },
+        "latency": 10.495,
+        "tokens": 57,
+        "raw_output": "```json\n{\n  \"transaction\": {\n    \"type\": \"transfer\",\n    \"amount\": \"$500\",\n    \"account_from\": \"checking_account\",\n    \"account_to\": \"savings_account\",\n    \"customer_name\": \"John Smith\"\n  }\n}\n```",
+        "parsed": {
+          "transaction": {
+            "type": "transfer",
+            "amount": "$500",
+            "account_from": "checking_account",
+            "account_to": "savings_account",
+            "customer_name": "John Smith"
+          }
+        }
+      },
+      {
+        "id": "eval_003",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.8,
+          "key_recall": 0.5714,
+          "key_f1": 0.6667,
+          "value_accuracy": 0.5714
+        },
+        "latency": 10.669,
+        "tokens": 67,
+        "raw_output": "```json\n{\n  \"action\": \"deploy\",\n  \"version\": \"2.4.1\",\n  \"environment\": \"production\",\n  \"region\": \"us-east-1\",\n  \"rolloutStrategy\": {\n    \"canaryPercentage\": 10,\n    \"type\": \"percentage\"\n  }\n}\n```",
+        "parsed": {
+          "action": "deploy",
+          "version": "2.4.1",
+          "environment": "production",
+          "region": "us-east-1",
+          "rolloutStrategy": {
+            "canaryPercentage": 10,
+            "type": "percentage"
+          }
+        }
+      },
+      {
+        "id": "eval_004",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.3,
+          "key_recall": 0.6,
+          "key_f1": 0.4,
+          "value_accuracy": 0.4
+        },
+        "latency": 16.052,
+        "tokens": 85,
+        "raw_output": "{\n  \"action\": \"add\",\n  \"type\": \"A\",\n  \"name\": \"api.example.com\",\n  \"data\": \"192.168.1.100\",\n  \"ttl\": 300,\n  \"priority\": null,\n  \"weight\": null,\n  \"port\": null,\n  \"query_class\": null,\n  \"query_type\": null\n}",
+        "parsed": {
+          "action": "add",
+          "type": "A",
+          "name": "api.example.com",
+          "data": "192.168.1.100",
+          "ttl": 300,
+          "priority": null,
+          "weight": null,
+          "port": null,
+          "query_class": null,
+          "query_type": null
+        }
+      },
+      {
+        "id": "eval_005",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.75,
+          "key_recall": 0.6,
+          "key_f1": 0.6667,
+          "value_accuracy": 0.4
+        },
+        "latency": 14.614,
+        "tokens": 66,
+        "raw_output": "```\n{\n  \"priority\": \"high\",\n  \"category\": \"billing\",\n  \"assigned_to\": {\n    \"team\": \"finance\",\n    \"name\": \"\"\n  },\n  \"details\": {\n    \"order_number\": \"7891\",\n    \"issue_description\": \"double charge\"\n  }\n}\n```",
+        "parsed": {
+          "priority": "high",
+          "category": "billing",
+          "assigned_to": {
+            "team": "finance",
+            "name": ""
+          },
+          "details": {
+            "order_number": "7891",
+            "issue_description": "double charge"
+          }
+        }
+      },
+      {
+        "id": "eval_006",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.75,
+          "key_recall": 0.75,
+          "key_f1": 0.75,
+          "value_accuracy": 0.75
+        },
+        "latency": 8.383,
+        "tokens": 51,
+        "raw_output": "{\n  \"action\": \"register_webhook\",\n  \"url\": \"https://hooks.example.com/payments\",\n  \"events\": [\"payment.completed\", \"payment.failed\"],\n  \"signing_method\": \"HMAC-SHA256\"\n}",
+        "parsed": {
+          "action": "register_webhook",
+          "url": "https://hooks.example.com/payments",
+          "events": [
+            "payment.completed",
+            "payment.failed"
+          ],
+          "signing_method": "HMAC-SHA256"
+        }
+      },
+      {
+        "id": "eval_007",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.0,
+          "key_recall": 0.0,
+          "key_f1": 0,
+          "value_accuracy": 0.0
+        },
+        "latency": 9.299,
+        "tokens": 56,
+        "raw_output": "```json\n{\n  \"scale\": {\n    \"workerPool\": [\n      {\n        \"instances\": 8,\n        \"vCpus\": 4,\n        \"ram\": 16\n      }\n    ],\n    \"namespace\": \"analytics\"\n  }\n}\n```",
+        "parsed": {
+          "scale": {
+            "workerPool": [
+              {
+                "instances": 8,
+                "vCpus": 4,
+                "ram": 16
+              }
+            ],
+            "namespace": "analytics"
+          }
+        }
+      },
+      {
+        "id": "eval_008",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.5,
+          "key_recall": 0.5,
+          "key_f1": 0.5,
+          "value_accuracy": 0.5
+        },
+        "latency": 7.813,
+        "tokens": 58,
+        "raw_output": "{\n  \"action\": \"revoke_api_key\",\n  \"api_key\": \"ak_live_abc123\",\n  \"application\": \"mobile-app\",\n  \"notification\": {\n    \"to\": \"dev@company.io\",\n    \"type\": \"email\"\n  }\n}",
+        "parsed": {
+          "action": "revoke_api_key",
+          "api_key": "ak_live_abc123",
+          "application": "mobile-app",
+          "notification": {
+            "to": "dev@company.io",
+            "type": "email"
+          }
+        }
+      }
+    ],
+    "sft": [
+      {
+        "id": "eval_001",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 6.106,
+        "tokens": 42,
+        "raw_output": "I'm sorry, but I cannot perform this task as you have not provided any specific details or context about what you want to cancel your subscription for. Please provide more information so that I can assist you better.",
+        "parsed": null
+      },
+      {
+        "id": "eval_002",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 7.897,
+        "tokens": 50,
+        "raw_output": "I'm sorry, but I am unable to perform financial transactions or access personal accounts. My purpose is to provide assistance with natural language processing tasks such as extracting information from text. Please let me know if there is anything else I can help you with.",
+        "parsed": null
+      },
+      {
+        "id": "eval_003",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 56.642,
+        "tokens": 399,
+        "raw_output": "To deploy version 2.4.1 of the payment service to production...",
+        "parsed": null
+      },
+      {
+        "id": "eval_004",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 73.384,
+        "tokens": 512,
+        "raw_output": "To add an A record for api.example.com...",
+        "parsed": null
+      },
+      {
+        "id": "eval_005",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 32.844,
+        "tokens": 168,
+        "raw_output": "Subject: Double Charge Report - Order #7891...",
+        "parsed": null
+      },
+      {
+        "id": "eval_006",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 63.165,
+        "tokens": 439,
+        "raw_output": "To register a webhook at https://hooks.example.com/payments...",
+        "parsed": null
+      },
+      {
+        "id": "eval_007",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 34.659,
+        "tokens": 243,
+        "raw_output": "To scale the worker pool to 8 instances...",
+        "parsed": null
+      },
+      {
+        "id": "eval_008",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 10.652,
+        "tokens": 71,
+        "raw_output": "I'm sorry, but I don't have access to revoke API keys...",
+        "parsed": null
+      }
+    ],
+    "dpo": [
+      {
+        "id": "eval_001",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.25,
+          "key_recall": 0.25,
+          "key_f1": 0.25,
+          "value_accuracy": 0.0
+        },
+        "latency": 4.558,
+        "tokens": 34,
+        "raw_output": "{\n  \"action\": \"cancel subscription\",\n  \"userId\": 8842,\n  \"effectiveImmediately\": true,\n  \"confirmationEmail\": true\n}",
+        "parsed": {
+          "action": "cancel subscription",
+          "userId": 8842,
+          "effectiveImmediately": true,
+          "confirmationEmail": true
+        }
+      },
+      {
+        "id": "eval_002",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.0,
+          "key_recall": 0.0,
+          "key_f1": 0,
+          "value_accuracy": 0.0
+        },
+        "latency": 7.576,
+        "tokens": 53,
+        "raw_output": "{\n  \"transaction\": {\n    \"type\": \"transfer\",\n    \"amount\": \"$500\",\n    \"account_from\": \"checking_account\",\n    \"account_to\": \"savings_account\",\n    \"customer_name\": \"John Smith\"\n  }\n}",
+        "parsed": {
+          "transaction": {
+            "type": "transfer",
+            "amount": "$500",
+            "account_from": "checking_account",
+            "account_to": "savings_account",
+            "customer_name": "John Smith"
+          }
+        }
+      },
+      {
+        "id": "eval_003",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 1.0,
+          "key_recall": 0.7143,
+          "key_f1": 0.8333,
+          "value_accuracy": 0.5714
+        },
+        "latency": 6.584,
+        "tokens": 47,
+        "raw_output": "{\n  \"action\": \"deploy\",\n  \"version\": \"2.4.1\",\n  \"environment\": \"production\",\n  \"region\": \"us-east-1\",\n  \"rollout_percentage\": \"10%\"\n}",
+        "parsed": {
+          "action": "deploy",
+          "version": "2.4.1",
+          "environment": "production",
+          "region": "us-east-1",
+          "rollout_percentage": "10%"
+        }
+      },
+      {
+        "id": "eval_004",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.3,
+          "key_recall": 0.6,
+          "key_f1": 0.4,
+          "value_accuracy": 0.4
+        },
+        "latency": 11.54,
+        "tokens": 85,
+        "raw_output": "{\n  \"action\": \"add\",\n  \"type\": \"A\",\n  \"name\": \"api.example.com\",\n  \"data\": \"192.168.1.100\",\n  \"ttl\": 300,\n  \"priority\": null,\n  \"weight\": null,\n  \"port\": null,\n  \"query_class\": null,\n  \"query_type\": null\n}",
+        "parsed": {
+          "action": "add",
+          "type": "A",
+          "name": "api.example.com",
+          "data": "192.168.1.100",
+          "ttl": 300,
+          "priority": null,
+          "weight": null,
+          "port": null,
+          "query_class": null,
+          "query_type": null
+        }
+      },
+      {
+        "id": "eval_005",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 1.0,
+          "key_recall": 0.6,
+          "key_f1": 0.75,
+          "value_accuracy": 0.4
+        },
+        "latency": 3.949,
+        "tokens": 25,
+        "raw_output": "{\n  \"priority\": \"high\",\n  \"category\": \"billing\",\n  \"assigned_to\": \"finance_team\"\n}",
+        "parsed": {
+          "priority": "high",
+          "category": "billing",
+          "assigned_to": "finance_team"
+        }
+      },
+      {
+        "id": "eval_006",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.75,
+          "key_recall": 0.75,
+          "key_f1": 0.75,
+          "value_accuracy": 0.75
+        },
+        "latency": 6.818,
+        "tokens": 51,
+        "raw_output": "{\n  \"action\": \"register_webhook\",\n  \"url\": \"https://hooks.example.com/payments\",\n  \"events\": [\"payment.completed\", \"payment.failed\"],\n  \"signing_method\": \"HMAC-SHA256\"\n}",
+        "parsed": {
+          "action": "register_webhook",
+          "url": "https://hooks.example.com/payments",
+          "events": [
+            "payment.completed",
+            "payment.failed"
+          ],
+          "signing_method": "HMAC-SHA256"
+        }
+      },
+      {
+        "id": "eval_007",
+        "scores": {
+          "valid_json": false,
+          "key_precision": 0,
+          "key_recall": 0,
+          "key_f1": 0,
+          "value_accuracy": 0
+        },
+        "latency": 10.492,
+        "tokens": 75,
+        "raw_output": "{\n  \"scale\": {\n    \"worker_pool\": [\n      {\n        \"instances\": 8,\n        \"vcpus_per_instance\": 4,\n        \"ram_per_instance\": 16 * 1024 * 1024 // converting GB to MB for calculation\n      }\n    ],\n    \"namespace\": \"analytics\"\n  }\n}",
+        "parsed": null
+      },
+      {
+        "id": "eval_008",
+        "scores": {
+          "valid_json": true,
+          "key_precision": 0.5,
+          "key_recall": 0.5,
+          "key_f1": 0.5,
+          "value_accuracy": 0.5
+        },
+        "latency": 8.304,
+        "tokens": 58,
+        "raw_output": "{\n  \"action\": \"revoke_api_key\",\n  \"api_key\": \"ak_live_abc123\",\n  \"application\": \"mobile-app\",\n  \"notification\": {\n    \"to\": \"dev@company.io\",\n    \"type\": \"email\"\n  }\n}",
+        "parsed": {
+          "action": "revoke_api_key",
+          "api_key": "ak_live_abc123",
+          "application": "mobile-app",
+          "notification": {
+            "to": "dev@company.io",
+            "type": "email"
+          }
+        }
+      }
+    ]
   }
 }
