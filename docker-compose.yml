@@ -2,6 +2,7 @@ services:
   site:
     build: .
     container_name: cloudaura-finetune-site
+    mem_limit: 128m
     ports:
       - "127.0.0.1:8004:80"
     restart: unless-stopped
