@@ -32,7 +32,7 @@ graph LR
 | Stage | Script | Description |
 |-------|--------|-------------|
 | 1. Data Prep | `pipeline/scripts/prepare_data.py` | Loads UltraChat-200k (SFT) and Intel-Orca DPO pairs from Hugging Face, formats for JSON extraction task |
-| 2. SFT | `pipeline/scripts/train_sft.py` | Supervised fine-tuning with QLoRA (4-bit NF4, LoRA r=16, ~0.6% trainable params) |
+| 2. SFT | `pipeline/scripts/train_sft.py` | Supervised fine-tuning with QLoRA (4-bit NF4, LoRA r=16, ~1.2% trainable params) |
 | 3. DPO | `pipeline/scripts/train_dpo.py` | Direct Preference Optimization on top of SFT adapter (beta=0.1, sigmoid loss) |
 | 4. Eval | `pipeline/scripts/evaluate.py` | Compares Base vs SFT vs SFT+DPO on 8 held-out JSON extraction prompts |
 
@@ -80,8 +80,8 @@ python evaluate.py
 | SFT Training | TRL `SFTTrainer` + PEFT `LoraConfig` |
 | DPO Training | TRL `DPOTrainer` + `DPOConfig` |
 | Optimizer | paged_adamw_8bit |
-| SFT Dataset | HuggingFaceH4/ultrachat_200k (10k samples) |
-| DPO Dataset | argilla/distilabel-intel-orca-dpo-pairs (5k pairs) |
+| SFT Dataset | HuggingFaceH4/ultrachat_200k (config max 10k; published run used 500 samples — see `results/eval_metrics.json`) |
+| DPO Dataset | argilla/distilabel-intel-orca-dpo-pairs (config max 5k; published run used 285 pairs) |
 | Showcase Site | nginx:alpine (static HTML/CSS/JS) |
 | Tracking | Weights & Biases (optional) |
 | Hardware | NVIDIA T4 GPU (16 GB VRAM) via Google Colab |
